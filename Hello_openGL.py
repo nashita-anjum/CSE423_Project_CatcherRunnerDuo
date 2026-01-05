@@ -605,7 +605,418 @@ def update_bombs():
         if bomb['z'] < 0:
             bombs_to_remove.append(i)
     
+    
     for i in sorted(bombs_to_remove, reverse=True):
         if i < len(bombs):
             bombs.pop(i) #(Nashita)
+def draw_chocolate(choc):
+    if choc['caught']:
+        return
+    
+    x, y, z = choc['x'], choc['y'], choc['z']
+    color = choc['color']
+    rotation = choc['rotation']
+    size = choc['size']
+    
+    glPushMatrix()
+    glTranslatef(x, y, z)
+    glRotatef(rotation, 0, 1, 1)
+    
+    glColor3f(color[0] * 0.6, color[1] * 0.6, color[2] * 0.6)
+    glPushMatrix()
+    glScalef(size*1.0, size*0.8, size*0.6)
+    glutSolidCube(1)
+    glPopMatrix()
+    
+    glColor3f(color[0] * 0.8, color[1] * 0.8, color[2] * 0.8)
+    glPushMatrix()
+    glScalef(size*0.95, size*0.75, size*0.55)
+    glutSolidCube(1)
+    glPopMatrix()
+    
+    glColor3f(*color)
+    glPushMatrix()
+    glScalef(size*0.9, size*0.7, size*0.5)
+    glutSolidCube(1)
+    glPopMatrix()
+    
+    glColor3f(min(1.0, color[0]*1.5), min(1.0, color[1]*1.5), min(1.0, color[2]*1.5))
+    for i in range(-1, 2):
+        for j in range(-1, 2):
+            if (i + j) % 2 == 0:
+                glPushMatrix()
+                glTranslatef(i * size * 0.25, j * size * 0.2, size * 0.3)
+                glutSolidSphere(size * 0.1, 10, 10)
+                glPopMatrix()
+    
+    glPopMatrix()
+
+def draw_golden_chocolate():
+    if not golden_chocolate_active:
+        return
+    
+    x, y, z, rotation = golden_chocolate_pos
+    
+    glPushMatrix()
+    glTranslatef(x, y, z)
+    glRotatef(rotation, 0, 1, 1)
+    
+    pulse = abs(math.sin(pulse_time * 6))
+    glow_size = 12 + pulse * 4
+    
+    glColor3f(1.0, 0.5, 0.0)
+    glutSolidSphere(glow_size + 6, 20, 20)
+    
+    glColor3f(1.0, 0.8, 0.0)
+    glutSolidSphere(glow_size + 4, 20, 20)
+    
+    glColor3f(1.0, 1.0, 0.0)
+    glutSolidSphere(glow_size + 2, 20, 20)
+    
+    glColor3f(1.0, 1.0, 0.5)
+    glutSolidSphere(glow_size, 20, 20)
+    
+    glColor3f(1.0, 0.84, 0.0)
+    glPushMatrix()
+    glScalef(7, 5.5, 4)
+    glutSolidCube(1)
+    glPopMatrix()
+    
+    glColor3f(1.0, 1.0, 0.5)
+    for i in range(-1, 2):
+        for j in range(-1, 2):
+            if (i + j) % 2 == 0:
+                glPushMatrix()
+                glTranslatef(i * 1.5, j * 1.2, 1.5)
+                glutSolidSphere(0.6, 10, 10)
+                glPopMatrix()
+    
+    glColor3f(1.0, 1.0, 1.0)
+    for angle in range(0, 360, 45):
+        glPushMatrix()
+        glRotatef(angle + rotation * 2, 0, 0, 1)
+        glTranslatef(10, 0, 0)
+        glutSolidSphere(0.8, 10, 10)
+        glPopMatrix()
+    
+    glPopMatrix()
+
+def draw_bomb(bomb):
+    x, y, z = bomb['x'], bomb['y'], bomb['z']
+    rotation = bomb['rotation']
+    
+    glPushMatrix()
+    glTranslatef(x, y, z)
+    glRotatef(rotation, 1, 1, 0)
+    
+    pulse = abs(math.sin(pulse_time * 10))
+    
+    glColor3f(1.0, 0.0, 0.0)
+    glutSolidSphere(12 + pulse * 2, 20, 20)
+    
+    glColor3f(0.5, 0.0, 0.0)
+    glutSolidSphere(10, 20, 20)
+    
+    glColor3f(0.1, 0.1, 0.1)
+    glutSolidSphere(8, 20, 20)
+    
+    glColor3f(1.0, 0.0, 0.0)
+    glPushMatrix()
+    glTranslatef(0, 0, 8)
+    glutSolidSphere(3, 10, 10)
+    glPopMatrix()
+    
+    glColor3f(0.0, 0.0, 0.0)
+    for angle in range(0, 360, 90):
+        glPushMatrix()
+        glRotatef(angle, 0, 0, 1)
+        glTranslatef(10, 0, 0)
+        glutSolidSphere(1.5, 10, 10)
+        glPopMatrix()
+    
+    glPopMatrix()
+
+def draw_thief(x, y, z, edge, direction=0, timer=0):
+    glPushMatrix()
+    glTranslatef(x, y, z)
+    
+    glColor3f(0.4, 0.25, 0.1)
+    glPushMatrix()
+    glTranslatef(-3, 0, 6)
+    glScalef(3, 3, 12)
+    glutSolidCube(1)
+    glPopMatrix()
+    glPushMatrix()
+    glTranslatef(3, 0, 6)
+    glScalef(3, 3, 12)
+    glutSolidCube(1)
+    glPopMatrix()
+    
+    glColor3f(0.1, 0.1, 0.1)
+    glPushMatrix()
+    glTranslatef(0, 0, 18)
+    glScalef(10, 6, 12)
+    glutSolidCube(1)
+    glPopMatrix()
+    
+    glColor3f(0.1, 0.1, 0.1)
+    glPushMatrix()
+    glTranslatef(-7, 0, 18)
+    glScalef(3, 3, 10)
+    glutSolidCube(1)
+    glPopMatrix()
+    glPushMatrix()
+    glTranslatef(7, 0, 18)
+    glScalef(3, 3, 10)
+    glutSolidCube(1)
+    glPopMatrix()
+    
+    glColor3f(0.9, 0.75, 0.6)
+    glPushMatrix()
+    glTranslatef(0, 0, 28)
+    glutSolidSphere(5, 20, 20)
+    glPopMatrix()
+    
+    glColor3f(1.0, 0.0, 0.0)
+    glPushMatrix()
+    glTranslatef(-2, 4, 28)
+    glutSolidSphere(0.8, 10, 10)
+    glPopMatrix()
+    glPushMatrix()
+    glTranslatef(2, 4, 28)
+    glutSolidSphere(0.8, 10, 10)
+    glPopMatrix()
+    
+    pulse = abs(math.sin(pulse_time * 8))
+    glColor3f(1.0, 0.0, 0.0)
+    glPushMatrix()
+    glTranslatef(0, 0, 35 + pulse * 2)
+    glRotatef(180, 1, 0, 0)
+    glutSolidSphere(4, 10, 10)
+    glPopMatrix()
+    
+    glPopMatrix()
+
+def draw_chocolates():
+    for pair in chocolate_pairs:
+        for choc in pair:
+            draw_chocolate(choc)
+
+def draw_thieves():
+    for thief in thieves:
+        draw_thief(*thief)
+
+def draw_bombs():
+    for bomb in bombs:
+        draw_bomb(bomb)
+
+def start_bonus_game():
+    global bonus_game_active, bonus_score, bonus_distance, bonus_player_lane
+    global bonus_obstacles, bonus_treasures, bonus_last_spawn, bonus_speed
+    global lives_collected_in_bonus, bonus_lives_earned
+    global chocolate_pairs, thieves, golden_chocolate_active, bombs, thief_active
+    global bonus_start_time, bonus_treasures_collected, bonus_hits_taken
+    global bonus_player_z, bonus_is_jumping, bonus_jump_velocity
+    
+    chocolate_pairs = []
+    thieves = []
+    bombs = []
+    thief_active = False
+    golden_chocolate_active = False
+    
+    bonus_game_active = True
+    bonus_score = 0
+    bonus_distance = 0
+    bonus_player_lane = 1
+    bonus_obstacles = []
+    bonus_treasures = []
+    bonus_last_spawn = 0
+    bonus_speed = 1.5
+    lives_collected_in_bonus = 0
+    bonus_lives_earned = 0
+    bonus_start_time = time.time()
+    bonus_treasures_collected = 0
+    bonus_hits_taken = 0
+    
+    bonus_player_z = 0
+    bonus_is_jumping = False
+    bonus_jump_velocity = 0
+    
+    print("Bonus level started! You have 10 seconds of safe travel before obstacles appear!")
+
+def end_bonus_game():
+    global bonus_game_active, lives, bonus_treasures_collected, game_state
+    global last_chocolate_time, last_thief_time, last_bomb_time, thief_active
+    
+    bonus_game_active = False
+    
+    if bonus_treasures_collected >= bonus_treasures_needed_for_life:
+        lives += 1
+        print(f"Bonus level complete! Collected {bonus_treasures_collected} treasures. +1 Life! Total lives: {lives}")
+    else:
+        print(f"Bonus level ended. Collected {bonus_treasures_collected}/5 treasures. No life earned.")
+    
+    game_state = "PLAYING"
+    
+    last_chocolate_time = time.time()
+    last_thief_time = time.time()
+    last_bomb_time = time.time()
+    thief_active = False
+    
+    print("Returning to main game...")
+
+def spawn_bonus_items(distance):
+    num_obstacles = random.randint(1, 2)
+    for _ in range(num_obstacles):
+        lane = random.choice([0, 1, 2])
+        x = (lane - 1) * bonus_lane_width
+        y = distance + random.uniform(-30, 30)
+        bonus_obstacles.append([x, y, 0, False])
+    
+    num_treasures = random.randint(1, 2)
+    for _ in range(num_treasures):
+        if random.random() < 0.7:
+            lane = random.choice([0, 1, 2])
+            x = (lane - 1) * bonus_lane_width
+            y = distance + random.uniform(-40, 40)
+            bonus_treasures.append([x, y, 5])
+
+def update_bonus_game():
+    global bonus_distance, bonus_obstacles, bonus_treasures, bonus_last_spawn
+    global bonus_score, bonus_speed, bonus_treasures_collected, bonus_hits_taken
+    global bonus_start_time, bonus_player_z, bonus_is_jumping, bonus_jump_velocity
+    
+    if bonus_is_jumping:
+        bonus_player_z += bonus_jump_velocity
+        bonus_jump_velocity += bonus_gravity
+        
+        if bonus_player_z <= bonus_ground_level:
+            bonus_player_z = bonus_ground_level
+            bonus_is_jumping = False
+            bonus_jump_velocity = 0
+    
+    if bonus_speed < bonus_max_speed:
+        bonus_speed += bonus_acceleration
+    
+    bonus_distance += bonus_speed
+    
+    time_elapsed = time.time() - bonus_start_time
+    grace_period_active = time_elapsed < bonus_grace_period
+    
+    obstacles_to_remove = []
+    for i, obs in enumerate(bonus_obstacles):
+        obs[1] -= bonus_speed
+        
+        if not grace_period_active:
+            if abs(obs[1]) < 20 and abs(obs[1]) > -20:
+                player_x_bonus = (bonus_player_lane - 1) * bonus_lane_width
+                if abs(player_x_bonus - obs[0]) < 20 and bonus_player_z < 25:
+                    if not obs[3]:
+                        obs[3] = True
+                        bonus_hits_taken += 1
+                        print(f"Hit obstacle! {bonus_hits_taken}/{bonus_max_hits} hits taken")
+                        
+                        if bonus_hits_taken >= bonus_max_hits:
+                            print("Hit 3 obstacles! Returning to main game...")
+                            end_bonus_game()
+                            return
+        
+        if obs[1] < -50:
+            obstacles_to_remove.append(i)
+    
+    for i in sorted(obstacles_to_remove, reverse=True):
+        bonus_obstacles.pop(i)
+    
+    treasures_to_remove = []
+    for i, treasure in enumerate(bonus_treasures):
+        treasure[1] -= bonus_speed
+        treasure[2] = 5 + math.sin(treasure[1] * 0.1) * 2
+        
+        if abs(treasure[1]) < 20 and abs(treasure[1]) > -20:
+            player_x_bonus = (bonus_player_lane - 1) * bonus_lane_width
+            if abs(player_x_bonus - treasure[0]) < 20:
+                treasures_to_remove.append(i)
+                bonus_treasures_collected += 1
+                print(f"Treasure collected! {bonus_treasures_collected}/{bonus_treasures_needed_for_life}")
+                
+                if bonus_treasures_collected >= bonus_treasures_needed_for_life:
+                    print("Collected 5 treasures! Earning 1 life!")
+                    end_bonus_game()
+                    return
+        
+        if treasure[1] < -50:
+            treasures_to_remove.append(i)
+    
+    for i in sorted(treasures_to_remove, reverse=True):
+        bonus_treasures.pop(i)
+    
+    if not grace_period_active and bonus_distance - bonus_last_spawn > bonus_obstacle_spacing:
+        spawn_bonus_items(bonus_last_spawn + bonus_obstacle_spacing * 6)
+        bonus_last_spawn += bonus_obstacle_spacing
+
+def draw_bonus_ground():
+    glBegin(GL_QUADS)
+    glColor3f(0.85, 0.75, 0.55)
+    glVertex3f(-200, -100, 0)
+    glVertex3f(200, -100, 0)
+    glColor3f(0.75, 0.65, 0.45)
+    glVertex3f(200, 600, 0)
+    glVertex3f(-200, 600, 0)
+    glEnd()
+    
+    glColor3f(1.0, 1.0, 1.0)
+    for x in [-bonus_lane_width, bonus_lane_width]:
+        glBegin(GL_LINES)
+        for y in range(-100, 600, 30):
+            glVertex3f(x, y, 0.1)
+            glVertex3f(x, y + 15, 0.1)
+        glEnd()
+    
+    glColor3f(1.0, 1.0, 0.0)
+    glBegin(GL_LINES)
+    for y in range(-100, 600, 30):
+        glVertex3f(0, y, 0.1)
+        glVertex3f(0, y + 15, 0.1)
+    glEnd()
+
+def draw_bonus_obstacles():
+    for obs in bonus_obstacles:
+        x, y, z, hit = obs
+        glPushMatrix()
+        glTranslatef(x, y, z + 12)
+        
+        if hit:
+            glColor3f(0.4, 0.2, 0.2)
+        else:
+            glColor3f(0.2, 0.2, 0.2)
+        
+        glPushMatrix()
+        glScalef(18, 15, 20)
+        glutSolidCube(1)
+        glPopMatrix()
+        
+        glColor3f(0.15, 0.15, 0.15)
+        glPushMatrix()
+        glTranslatef(-6, -4, 8)
+        glutSolidSphere(5, 12, 12)
+        glPopMatrix()
+        
+        glPushMatrix()
+        glTranslatef(6, 4, 8)
+        glutSolidSphere(4, 12, 12)
+        glPopMatrix()
+        
+        glPushMatrix()
+        glTranslatef(0, 0, 12)
+        glutSolidSphere(4.5, 12, 12)
+        glPopMatrix()
+        
+        glColor3f(0.1, 0.1, 0.1)
+        glPushMatrix()
+        glTranslatef(0, 0, -10)
+        glScalef(20, 17, 2)
+        glutSolidCube(1)
+        glPopMatrix()
+        
+        glPopMatrix()
 
