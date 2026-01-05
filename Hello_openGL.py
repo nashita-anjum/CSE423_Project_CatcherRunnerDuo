@@ -609,7 +609,7 @@ def update_bombs():
     for i in sorted(bombs_to_remove, reverse=True):
         if i < len(bombs):
             bombs.pop(i) #(Nashita)
-def draw_chocolate(choc):
+def draw_chocolate(choc): #(Tasnim)
     if choc['caught']:
         return
     
@@ -1018,7 +1018,7 @@ def draw_bonus_obstacles():
         glutSolidCube(1)
         glPopMatrix()
         
-        glPopMatrix()
+        glPopMatrix() #(Tasnim)
 
 def draw_bonus_treasures(): #(Disha)
     for treasure in bonus_treasures:
