@@ -1,1 +1,1 @@
-# CSE423_Project_CatcherRunnerDuo
+# CatcherRunnerDuo
